@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+<title>My Light — One light, many paths</title>
+
+<meta name="theme-color" content="#C5611F" />
+<meta name="description" content="A quiet moment to begin each day — your prayer, the meaning of today, and one small act." />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="My Light" />
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<link rel="icon" type="image/png" href="icon-192.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Marcellus&family=Mukta:wght@300;400;500;600;700;800&family=Tiro+Devanagari+Hindi:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Mukta', system-ui, sans-serif;
+    background: #FBF5EC;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+  #root { height: 100%; }
+  button, input { font-family: inherit; }
+
+  .aaj-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+  .aaj-scroll::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
+  .aaj-screen-in { opacity: 1; animation: fadeUp .38s cubic-bezier(.22,.61,.36,1); }
+  @keyframes fadeUp { from { transform: translateY(10px); } to { transform: translateY(0); } }
+  @keyframes aajBreathe { 0%,100% { transform: scale(1); opacity: .9; } 50% { transform: scale(1.06); opacity: 1; } }
+  @keyframes aajToast { 0% { opacity: 0; transform: translateX(-50%) translateY(-8px); } 12%,82% { opacity: 1; transform: translateX(-50%) translateY(0); } 100% { opacity: 0; transform: translateX(-50%) translateY(-8px); } }
+  .aaj-sheet { animation: aajSheetUp .32s cubic-bezier(.22,.61,.36,1) both; }
+  @keyframes aajSheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  @keyframes aajFade { from { opacity: 0; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .aaj-screen-in, [style*="aajBreathe"] { animation: none !important; } }
+
+  /* loading splash */
+  #splash { position: fixed; inset: 0; display: grid; place-items: center; background: #FBF5EC; z-index: 999; transition: opacity .4s ease; }
+  #splash.hide { opacity: 0; pointer-events: none; }
+  #splash .mk { width: 76px; height: 76px; border-radius: 22px; background: linear-gradient(135deg, #ff9147, #c85d1e); display: grid; place-items: center; box-shadow: 0 16px 40px rgba(197,97,31,.3); animation: aajBreathe 3s ease-in-out infinite; }
+
+  /* install bar */
+  #installBar { position: fixed; left: 12px; right: 12px; bottom: calc(98px + env(safe-area-inset-bottom,0px)); z-index: 500;
+    max-width: 496px; margin: 0 auto; transform: translateY(180%); transition: transform .35s cubic-bezier(.22,.61,.36,1); }
+  #installBar.show { transform: translateY(0); }
+  #installBar .card { display: flex; align-items: center; gap: 12px; background: #221a14; color: #fff; border-radius: 18px; padding: 13px 14px 13px 16px; box-shadow: 0 16px 40px rgba(0,0,0,.3); }
+  #installBar .tx { flex: 1; line-height: 1.35; }
+  #installBar .tx b { display: block; font-size: 13.5px; font-weight: 700; }
+  #installBar .tx span { font-size: 12px; opacity: .7; }
+  #installBar .add { background: #e8712a; color: #fff; border: none; padding: 10px 16px; border-radius: 12px; font-size: 14px; font-weight: 800; cursor: pointer; white-space: nowrap; }
+  #installBar .x { opacity: .5; font-size: 22px; line-height: 1; padding: 4px 6px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<div id="splash"><div class="mk">
+  <svg width="46" height="46" viewBox="0 0 512 512"><ellipse cx="256" cy="346" rx="104" ry="30" fill="rgba(255,255,255,0.22)"/><path d="M256 150 C231 192 210 229 210 268 C210 307 230 330 256 330 C282 330 302 307 302 268 C302 229 281 192 256 150Z" fill="#fff"/><path d="M256 200 C243 223 236 245 236 264 C236 283 245 296 256 296 C267 296 276 283 276 264 C276 245 269 223 256 200Z" fill="#ffcc4d"/></svg>
+</div></div>
+
+<div id="installBar">
+  <div class="card">
+    <div class="tx"><b>Add My Light to your home screen</b><span>One tap for your daily prayer</span></div>
+    <button class="add" id="installAdd">Add</button>
+    <div class="x" id="installX">×</div>
+  </div>
+</div>
+
+<script>window.AAJ_PROD = true;</script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="lib/tweaks-panel.jsx"></script>
+<script type="text/babel" src="app/data.jsx"></script>
+<script type="text/babel" src="app/ui.jsx"></script>
+<script type="text/babel" src="app/screen-today.jsx"></script>
+<script type="text/babel" src="app/screen-calendar.jsx"></script>
+<script type="text/babel" src="app/screen-library-profile.jsx"></script>
+<script type="text/babel" src="app/onboarding.jsx"></script>
+<script type="text/babel" src="app/paywall.jsx"></script>
+<script type="text/babel" src="app/app.jsx" data-presets="react"></script>
+
+<script>
+  // hide splash once the app has mounted
+  (function () {
+    var tries = 0;
+    var iv = setInterval(function () {
+      tries++;
+      if (document.querySelector('#root').childElementCount > 0 || tries > 60) {
+        var s = document.getElementById('splash'); if (s) s.classList.add('hide');
+        setTimeout(function () { if (s) s.remove(); }, 500);
+        clearInterval(iv);
+      }
+    }, 100);
+  })();
+
+  // install prompt — only once the user is past onboarding
+  (function () {
+    var bar = document.getElementById('installBar'), dp = null, shown = false;
+    function onboarded() { try { return !!(JSON.parse(localStorage.getItem('aaj2_state_v1') || '{}').onboarded); } catch (e) { return false; } }
+    function maybeShow() {
+      if (shown || !dp || localStorage.getItem('aaj_install_skip')) return;
+      if (onboarded()) { bar.classList.add('show'); shown = true; }
+    }
+    window.addEventListener('beforeinstallprompt', function (e) {
+      e.preventDefault(); dp = e;
+      setTimeout(maybeShow, 4000);
+      var poll = setInterval(function () { if (shown || localStorage.getItem('aaj_install_skip')) { clearInterval(poll); return; } maybeShow(); }, 3000);
+    });
+    document.getElementById('installAdd').onclick = async function () {
+      if (dp) { dp.prompt(); try { await dp.userChoice; } catch (_) {} bar.classList.remove('show'); dp = null; }
+    };
+    document.getElementById('installX').onclick = function () { bar.classList.remove('show'); localStorage.setItem('aaj_install_skip', '1'); };
+    window.addEventListener('appinstalled', function () { bar.classList.remove('show'); });
+  })();
+
+  // service worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+  }
+</script>
+</body>
+</html>
